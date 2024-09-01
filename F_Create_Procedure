@@ -1,0 +1,52 @@
+F: Provide an original stored procedure in a text format…
+
+
+CREATE OR REPLACE PROCEDURE refresh_data()
+LANGUAGE plpgsql AS
+$$
+BEGIN
+	--Clear the contents of the detailed table
+	TRUNCATE TABLE detailed_table_report;
+	
+	--Clear the contents of the summary table
+	TRUNCATE TABLE summary_table_report;
+	
+	--Repopulate the detailed table
+	INSERT INTO detailed_table_report
+	SELECT
+		customer.customer_ID AS "Customer ID",
+		first_name AS "First Name",
+		last_name AS "Last Name",
+		rental.rental_id AS "Rental ID",
+		rental.rental_date AS "Rental Date",
+		rental.return_date AS "Return Date",
+		film.title AS "Movie Title",
+		CASE
+			WHEN duration.rental_days_duration = 0 THEN 1
+			ELSE duration.rental_days_duration
+		END AS "Rental Duration",
+		payment.amount AS "Rental Fee"
+	FROM customer
+	JOIN rental ON customer.customer_id = rental.customer_id
+	JOIN inventory ON rental.inventory_id = inventory.inventory_id
+	JOIN film ON inventory.film_id = film.film_id
+	JOIN (SELECT * FROM get_rental_days_durations()) AS duration ON rental.rental_id = duration.rental_number
+	JOIN payment ON rental.rental_id = payment.rental_id
+	ORDER BY "Customer ID", "Rental Date";
+	
+	--Repopulate the summary table
+	INSERT INTO summary_table_report
+	SELECT
+		customer.customer_id AS "Customer ID",
+		customer.first_name AS "First Name",
+		customer.last_name AS "Last Name",
+		COUNT(rental.rental_id) AS "Total Rentals",
+		SUM(payment.amount) AS "Total Revenue"
+	FROM customer
+	JOIN rental ON customer.customer_id = rental.customer_id
+	JOIN payment ON rental.rental_id = payment.rental_id
+	GROUP BY customer.customer_id
+	ORDER BY COUNTER(rental.rental_id) DESC;
+END;
+$$;
+
