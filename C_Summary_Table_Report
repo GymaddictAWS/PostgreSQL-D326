@@ -1,0 +1,19 @@
+C: Summary Table Report
+
+DROP TABLE summary_table_report;
+
+CREATE TABLE summary_table_report
+AS
+SELECT
+	customer.customer_id AS "Customer ID” PRIMARY KEY,
+	customer.first_name AS "First Name",
+	customer.last_name AS "Last Name",
+	COUNT(rental.rental_id) AS "Total Rentals",
+	SUM(payment.amount) AS "Total Revenue"
+FROM customer
+JOIN rental ON customer.customer_id = rental.customer_id
+JOIN payment ON rental.rental_id = payment.rental_id
+GROUP BY customer.customer_id
+ORDER BY COUNT(rental.rental_id) DESC;
+ALTER TABLE summary_table_report
+ADD PRIMARY KEY ("Customer ID");
