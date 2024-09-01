@@ -1,0 +1,20 @@
+E: Provide original SQL code in a text format that creates a trigger…
+
+
+CREATE OR REPLACE FUNCTION update_summary_table()
+RETURNS TRIGGER
+AS $$
+BEGIN
+	--Insert or update the summary table
+	INSERT INTO summary_table_report ("Customer ID", "First Name", "Last Name", "Total Rentals", "Total Revenue")
+	VALUES (NEW."Customer ID", NEW."First Name", NEW."Last Name", 1, NEW."Rental Fee")
+	ON CONFLICT ("Customer ID") DO UPDATE
+	SET "Total Rentals" = summary_table_report."Total Rentals" + 1,
+		"Total Revenue" = summary_table_report."Total Revenue" + EXCLUDED."Total Revenue";
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE Trigger trg_update_summary
+AFTER INSERT ON detailed_table_report
+FOR EACH ROW
+EXECUTE FUNCTION update_summary_table();
