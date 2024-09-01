@@ -1,0 +1,20 @@
+B:  Function
+
+-- Drop the function if it already exists
+
+DROP FUNCTION IF EXISTS get_rental_days_durations(); 
+
+-- Create the function
+ 
+CREATE FUNCTION get_rental_days_durations()
+RETURNS TABLE (rental_number INTEGER, rental_days_duration INTEGER) AS
+$$
+BEGIN
+	RETURN QUERY
+	SELECT
+	rental.rental_id as rental_number, EXTRACT(DAY FROM 					(rental.return_date -rental.rental_date))::integer AS 						rental_days_duration
+FROM rental;
+
+END;
+$$
+LANGUAGE plpgsql;
