@@ -1,0 +1,25 @@
+Insert Options for D326
+
+FIRST INSERT
+
+INSERT INTO detailed_table_report (
+    "Customer ID",
+    "First Name",
+    "Last Name",
+    "Rental ID",
+    "Rental Date",
+    "Return Date",
+    "Movie Title",
+    "Rental Duration",
+    "Rental Fee"
+) VALUES (
+    14597, 
+    'Julian', 
+    'Forbes', 
+    15015, 
+    '2024-08-30', 
+    '2024-09-04', 
+    'Pet Haunting', 
+    4, 
+    9.99
+);
