@@ -1,0 +1,26 @@
+C: Detailed Table Report
+
+DROP TABLE IF EXISTS detailed_table_report;
+
+CREATE TABLE detailed_table_report
+AS
+	SELECT
+		customer.customer_id AS "Customer ID",
+		first_name AS "First Name",
+		last_name AS "Last Name",
+		rental.rental_id AS "Rental ID",
+		rental.rental_date AS "Rental Date",
+		rental.return_date AS "Return Date",
+		film.title AS "Movie Title",
+		CASE
+			WHEN duration.rental_days_duration = 0 THEN 1
+			ELSE duration.rental_days_duration
+		END AS "Rental Duration",
+		payment.amount AS "Rental Fee"
+FROM customer
+JOIN rental ON customer.customer_id = rental.customer_id
+JOIN inventory ON rental.inventory_id = inventory.inventory_id
+JOIN film on inventory.film_id = film.film_id
+JOIN (SELECT * FROM get_rental_days_durations()) AS duration ON rental.rental_id = duration.rental_number
+JOIN payment ON rental.rental_id = payment.rental_id
+Order BY "Customer ID", "Rental Date";
