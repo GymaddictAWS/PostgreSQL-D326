@@ -149,7 +149,7 @@ INSERT INTO detailed_table_report (
     "Rental Duration",
     "Rental Fee"
 ) VALUES (
-    14598, 
+    14597, 
     'Michael', 
     'Grier', 
     14339, 
