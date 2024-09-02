@@ -1,0 +1,15 @@
+ERROR:  duplicate key value violates unique constraint "summary_table_report_pkey"
+DETAIL:  Key ("Customer ID")=(148) already exists.
+CONTEXT:  SQL statement "INSERT INTO summary_table_report
+    SELECT
+        customer.customer_id AS "Customer ID",
+        CONCAT(customer.last_name, ', ', customer.first_name) AS "Customer Name",
+        COUNT(rental.rental_id) AS "Total Rentals",
+        SUM(payment.amount) AS "Total Revenue"
+    FROM customer
+    JOIN rental ON customer.customer_id = rental.customer_id
+    JOIN payment ON rental.rental_id = payment.rental_id
+    GROUP BY customer.customer_id
+    ORDER BY COUNT(rental.rental_id) DESC"
+PL/pgSQL function refresh_data() line 33 at SQL statement
+SQL state: 23505
