@@ -162,6 +162,9 @@ INSERT INTO detailed_table_report (
 
 -- F: Provide an original stored procedure in a text format…
 
+-- Drop the stored procedure if it already exists
+DROP PROCEDURE IF EXISTS refresh_data;
+
 -- Create the stored procedure
 CREATE OR REPLACE PROCEDURE refresh_data()
 LANGUAGE plpgsql AS
@@ -207,6 +210,10 @@ BEGIN
     JOIN rental ON customer.customer_id = rental.customer_id
     JOIN payment ON rental.rental_id = payment.rental_id
     GROUP BY customer.customer_id
-    ORDER BY COUNT(rental.rental_id) DESC;
+    ORDER BY COUNT(rental.rental_id) DESC
+    ON CONFLICT ("Customer ID") DO UPDATE
+    SET 
+        "Total Rentals" = EXCLUDED."Total Rentals",
+        "Total Revenue" = EXCLUDED."Total Revenue";
 END;
 $$;
