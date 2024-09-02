@@ -13,3 +13,46 @@ CONTEXT:  SQL statement "INSERT INTO summary_table_report
     ORDER BY COUNT(rental.rental_id) DESC"
 PL/pgSQL function refresh_data() line 33 at SQL statement
 SQL state: 23505
+
+
+ERROR:  there is no unique or exclusion constraint matching the ON CONFLICT specification
+CONTEXT:  SQL statement "INSERT INTO summary_table_report (
+        "Customer ID", 
+        "Customer Name", 
+        "Total Rentals", 
+        "Total Revenue"
+    )
+    VALUES (
+        NEW."Customer ID", 
+        CONCAT(NEW."Last Name", ', ', NEW."First Name"), 
+        1, 
+        NEW."Rental Fee"
+    )
+    ON CONFLICT ("Customer ID") DO UPDATE
+    SET 
+        "Total Rentals" = summary_table_report."Total Rentals" + 1,
+        "Total Revenue" = summary_table_report."Total Revenue" + EXCLUDED."Total Revenue""
+PL/pgSQL function update_summary_table() line 4 at SQL statement
+SQL statement "INSERT INTO detailed_table_report
+    SELECT
+        customer.customer_id AS "Customer ID",
+        first_name AS "First Name",
+        last_name AS "Last Name",
+        rental.rental_id AS "Rental ID",
+        rental.rental_date AS "Rental Date",
+        rental.return_date AS "Return Date",
+        film.title AS "Movie Title",
+        CASE
+            WHEN duration.rental_days_duration = 0 THEN 1
+            ELSE duration.rental_days_duration
+        END AS "Rental Duration",
+        payment.amount AS "Rental Fee"
+    FROM customer
+    JOIN rental ON customer.customer_id = rental.customer_id
+    JOIN inventory ON rental.inventory_id = inventory.inventory_id
+    JOIN film ON inventory.film_id = film.film_id
+    JOIN (SELECT * FROM get_rental_days_durations()) AS duration ON rental.rental_id = duration.rental_number
+    JOIN payment ON rental.rental_id = payment.rental_id
+    ORDER BY "Customer ID", "Rental Date""
+PL/pgSQL function refresh_data() line 10 at SQL statement
+SQL state: 42P10
