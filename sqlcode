@@ -1,4 +1,4 @@
-B:  Function
+--B:  Function
 
 -- Drop the function if it already exists
 
@@ -12,14 +12,14 @@ $$
 BEGIN
 	RETURN QUERY
 	SELECT
-	rental.rental_id as rental_number, EXTRACT(DAY FROM 					(rental.return_date -rental.rental_date))::integer AS 						rental_days_duration
+	rental.rental_id as rental_number, EXTRACT(DAY FROM(rental.return_date -rental.rental_date))::integer AS rental_days_duration
 FROM rental;
 
 END;
 $$
 LANGUAGE plpgsql;
 
-C: Detailed Table Report
+--C: Detailed Table Report
 
 DROP TABLE IF EXISTS detailed_table_report;
 
@@ -46,7 +46,7 @@ JOIN (SELECT * FROM get_rental_days_durations()) AS duration ON rental.rental_id
 JOIN payment ON rental.rental_id = payment.rental_id
 Order BY "Customer ID", "Rental Date";
 
-C: Summary Table Report
+--C: Summary Table Report
 
 DROP TABLE summary_table_report;
 
@@ -66,17 +66,17 @@ ORDER BY COUNT(rental.rental_id) DESC;
 ALTER TABLE summary_table_report
 ADD PRIMARY KEY ("Customer ID");
 
-D: Original SQL Query
+--D: Original SQL Query
 
 SELECT * FROM detailed_table_report
 
 SELECT * FROM summary_table_report
 
-: Provide original SQL code in a text format that creates a trigger…
+--E: Provide original SQL code in a text format that creates a trigger…
 
 
---DROP FUNCTION update_summary_table();
---DROP TRIGGER trg_update_summary on detailed_table_report;
+DROP FUNCTION update_summary_table();
+DROP TRIGGER trg_update_summary on detailed_table_report;
 CREATE OR REPLACE FUNCTION update_summary_table()
 RETURNS TRIGGER
 AS $$
