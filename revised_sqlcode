@@ -46,14 +46,15 @@ AS
 
 -- C: Summary Table Report
 
+-- Drop the summary table if it exists
 DROP TABLE IF EXISTS summary_table_report;
 
+-- Create the summary table
 CREATE TABLE summary_table_report
 AS
     SELECT
         customer.customer_id AS "Customer ID",
-        customer.first_name AS "First Name",
-        customer.last_name AS "Last Name",
+        CONCAT(customer.last_name, ', ', customer.first_name) AS "Customer Name",
         COUNT(rental.rental_id) AS "Total Rentals",
         SUM(payment.amount) AS "Total Revenue"
     FROM customer
@@ -62,16 +63,9 @@ AS
     GROUP BY customer.customer_id
     ORDER BY COUNT(rental.rental_id) DESC;
 
+-- Add primary key to the summary table
 ALTER TABLE summary_table_report
 ADD PRIMARY KEY ("Customer ID");
-
--- D: Original SQL Query
-
-SELECT * FROM detailed_table_report;
-
-SELECT * FROM summary_table_report;
-
--- E: Provide original SQL code in a text format that creates a trigger…
 
 -- Drop the trigger and function if they already exist
 DROP FUNCTION IF EXISTS update_summary_table();
@@ -85,15 +79,13 @@ BEGIN
     -- Insert or update the summary table
     INSERT INTO summary_table_report (
         "Customer ID", 
-        "First Name", 
-        "Last Name", 
+        "Customer Name", 
         "Total Rentals", 
         "Total Revenue"
     )
     VALUES (
         NEW."Customer ID", 
-        NEW."First Name", 
-        NEW."Last Name", 
+        CONCAT(NEW."Last Name", ', ', NEW."First Name"), 
         1, 
         NEW."Rental Fee"
     )
@@ -112,56 +104,7 @@ AFTER INSERT ON detailed_table_report
 FOR EACH ROW
 EXECUTE FUNCTION update_summary_table();
 
--- Insert Options for D326
-
--- FIRST INSERT
-INSERT INTO detailed_table_report (
-    "Customer ID",
-    "First Name",
-    "Last Name",
-    "Rental ID",
-    "Rental Date",
-    "Return Date",
-    "Movie Title",
-    "Rental Duration",
-    "Rental Fee"
-) VALUES (
-    14597, 
-    'Julian', 
-    'Forbes', 
-    15015, 
-    '2024-08-30', 
-    '2024-09-04', 
-    'Pet Haunting', 
-    4, 
-    9.99
-);
-
--- SECOND INSERT
-INSERT INTO detailed_table_report (
-    "Customer ID",
-    "First Name",
-    "Last Name",
-    "Rental ID",
-    "Rental Date",
-    "Return Date",
-    "Movie Title",
-    "Rental Duration",
-    "Rental Fee"
-) VALUES (
-    14598, 
-    'Michael', 
-    'Grier', 
-    14339, 
-    '2024-08-01 13:04:15', 
-    '2024-08-07 13:15:15', 
-    'Greedy Roots', 
-    6, 
-    7.99
-);
-
--- F: Provide an original stored procedure in a text format…
-
+-- Create the stored procedure
 CREATE OR REPLACE PROCEDURE refresh_data()
 LANGUAGE plpgsql AS
 $$
@@ -199,8 +142,7 @@ BEGIN
     INSERT INTO summary_table_report
     SELECT
         customer.customer_id AS "Customer ID",
-        customer.first_name AS "First Name",
-        customer.last_name AS "Last Name",
+        CONCAT(customer.last_name, ', ', customer.first_name) AS "Customer Name",
         COUNT(rental.rental_id) AS "Total Rentals",
         SUM(payment.amount) AS "Total Revenue"
     FROM customer
