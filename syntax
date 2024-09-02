@@ -56,3 +56,13 @@ SQL statement "INSERT INTO detailed_table_report
     ORDER BY "Customer ID", "Rental Date""
 PL/pgSQL function refresh_data() line 10 at SQL statement
 SQL state: 42P10
+
+SELECT conname
+    FROM pg_constraint
+    WHERE conrelid = 'summary_table_report'::regclass
+    AND contype = 'p';
+
+ALTER TABLE summary_table_report
+ADD CONSTRAINT summary_table_report_pkey PRIMARY KEY ("Customer ID");
+
+
