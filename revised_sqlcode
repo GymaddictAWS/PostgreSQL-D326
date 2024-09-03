@@ -44,6 +44,7 @@ AS
     JOIN payment ON rental.rental_id = payment.rental_id
     ORDER BY "Customer ID", "Rental Date";
 
+SELECT * from detailed_table_report;
 -- C: Summary Table Report
 
 -- Drop the summary table if it exists
@@ -67,11 +68,14 @@ AS
 ALTER TABLE summary_table_report
 ADD PRIMARY KEY ("Customer ID");
 
+SELECT * FROM summary_table_report;
 -- D: Original SQL Query
 
-SELECT * FROM detailed_table_report;
+SELECT * FROM detailed_table_report
+WHERE "Movie Title" = 'Closer Bang';
 
-SELECT * FROM summary_table_report;
+SELECT * FROM summary_table_report
+WHERE "Total Revenue" >= 200;
 
 -- E: Provide original SQL code in a text format that creates a trigger…
 
@@ -136,6 +140,17 @@ INSERT INTO detailed_table_report (
     4, 
     9.99
 );
+-- Show proof of INSERTS and Updated Summary Tabple
+SELECT COUNT(*) FROM detailed_table_report;
+
+SELECT COUNT(*) FROM summary_table_report;
+
+SELECT * FROM detailed_table_report
+WHERE "Last Name" = 'Forbes';
+
+SELECT * FROM summary_table_report
+WHERE "Customer Name" LIKE 'Forbes%'
+
 
 -- SECOND INSERT
 INSERT INTO detailed_table_report (
@@ -159,6 +174,22 @@ INSERT INTO detailed_table_report (
     6, 
     7.99
 );
+-- Show proof of INSERTS and Updated Summary Table
+SELECT COUNT(*) FROM detailed_table_report;
+
+SELECT COUNT(*) FROM summary_table_report;
+
+SELECT * FROM detailed_table_report
+WHERE "Last Name" = 'Grier';
+
+SELECT * FROM summary_table_report
+WHERE "Customer Name" LIKE 'Grier%'
+
+SELECT * FROM detailed_table_report
+WHERE "Last Name" IN ('Forbes', 'Grier');
+
+SELECT * FROM summary_table_report
+WHERE "Customer Name" LIKE 'Forbes%' OR "Customer Name" LIKE 'Grier%';
 
 -- F: Provide an original stored procedure in a text format…
 
@@ -217,3 +248,17 @@ BEGIN
         "Total Revenue" = EXCLUDED."Total Revenue";
 END;
 $$;
+
+-- Call the Procedure
+CALL refresh_data();
+
+-- Test results of Procedure to reset raw data for tables.
+SELECT COUNT(*) FROM detailed_table_report;
+
+SELECT COUNT(*) FROM summary_table_report;
+
+SELECT * FROM detailed_table_report
+WHERE "Last Name" IN ('Forbes', 'Grier');
+
+SELECT * FROM summary_table_report
+WHERE "Customer Name" LIKE 'Forbes%' OR "Customer Name" LIKE 'Grier%';
